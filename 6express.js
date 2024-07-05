@@ -38,6 +38,7 @@ const courseRoutes = require('./routes/courseRoutes.js');
 const Teacher = require('./models/Teacher.js');
 
 //use the routers
+// app.use('/teacher', teacherRoutes);
 app.use('/teacher', localAuthMiddleware , teacherRoutes);
 app.use('/course', courseRoutes);
 

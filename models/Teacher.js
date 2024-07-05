@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 
 const teacherSchema = new mongoose.Schema({
@@ -35,6 +36,51 @@ const teacherSchema = new mongoose.Schema({
         required: true
     }
 })
+
+teacherSchema.pre('save', async function(next)  {
+    const teacher = this; 
+
+    //Hash the password only if it has been modified (or is new)
+    if(!teacher.isModified('password')) return next();
+
+    try {
+        //hash password generation
+        const salt = await bcrypt.genSalt(10);
+
+        //hash password
+        const hashedPassword = await bcrypt.hash(teacher.password, salt);
+
+        //Override the plain password with the hashed one
+        teacher.password = hashedPassword;
+        next();
+    } catch (error) {
+        return next(error);
+    }
+})
+
+teacherSchema.methods.comparePassword = async function(candidatePassword) {
+    try {
+        //use bcrypt to compare the provided password with the hashed password
+        const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+
+/*
+
+hash working mechanism
+
+correctPassword ---------> jskghjsghsohn23r5kdnf
+login -----------> incorrectPassword
+
+jskghjsghsohn23r5kdnf ----------? extract all salt
+salt+incorrectPassword ------------> hash ------> 2hfuegr5grhsd9ff
+
+compare the hashed password now
+*/
 
 const Teacher = mongoose.model('Teacher', teacherSchema);
 module.exports = Teacher;

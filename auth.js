@@ -1,6 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const teacherRoutes = require('./routes/teacherRoutes.js');
+const Teacher = require('./models/Teacher.js');
 
 passport.use(new LocalStrategy(async (USERNAME, password, done) => {
     // authentication logic 
@@ -10,7 +11,8 @@ passport.use(new LocalStrategy(async (USERNAME, password, done) => {
         if (!user)
             return done(null, false, { message: 'Incorrect username.' });
 
-        const isPasswordMatch = user.password === password ? true : false;
+        // const isPasswordMatch = user.password === password ? true : false;
+        const isPasswordMatch = await user.comparePassword(password);
         if (isPasswordMatch) {
             return done(null, user);
         } else {
