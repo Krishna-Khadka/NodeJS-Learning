@@ -1,0 +1,6 @@
+express
+nodemon
+lodash
+dotenv
+passport
+passport-local
